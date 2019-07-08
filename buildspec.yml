@@ -3,6 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
+      - echo [PHASE] Entered the install phase...
       - curl -sS -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
       - curl -sS -o kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/kubectl
       - chmod +x ./kubectl ./aws-iam-authenticator
@@ -10,17 +11,21 @@ phases:
       - apt-get update && apt-get -y install jq python3-pip python3-dev && pip3 install --upgrade awscli
   pre_build:
       commands:
+        - echo [PHASE] Entered the pre_build phase...
         - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$ENVIRONMENT_NAME.$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
-        - echo "TAG: $TAG"
+        - echo "$TAG"
         - sed -i 's@CONTAINER_IMAGE@'"$REPOSITORY_URI:$TAG"'@' hello-k8s.yml
         - $(aws ecr get-login --no-include-email)
         - export KUBECONFIG=$HOME/.kube/config
   build:
     commands:
-      - docker build --tag $REPOSITORY_URI:$TAG .
+      - echo [PHASE] Entered the build phase...
+#      - docker build --tag $REPOSITORY_URI:$TAG .
+      - docker build --tag $REPOSITORY_URI:latest .
 
   post_build:
     commands:
+      - echo [PHASE] Entered the post_build phase...
       - docker push $REPOSITORY_URI:$TAG
       - CREDENTIALS=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
       - export AWS_ACCESS_KEY_ID="$(echo ${CREDENTIALS} | jq -r '.Credentials.AccessKeyId')"
