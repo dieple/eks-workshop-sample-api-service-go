@@ -15,7 +15,8 @@ phases:
       commands:
         - env
         - echo [PHASE] Entered the pre_build phase...
-        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$ENVIRONMENT.$(date +%Y-%m-%d.%H.%M.%S)"
+        - TAG="latest"
+#        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$ENVIRONMENT.$(date +%Y-%m-%d.%H.%M.%S)"
         - echo "TAG generated: [$TAG]"
         - sed -i 's@CONTAINER_IMAGE@'"$REPOSITORY_URI:$TAG"'@' hello-k8s.yml
         - $(aws ecr get-login --no-include-email)
