@@ -15,20 +15,21 @@ phases:
       commands:
         - env
         - echo [PHASE] Entered the pre_build phase...
-        - TAG="latest"
-#        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$ENVIRONMENT.$(date +%Y-%m-%d.%H.%M.%S)"
-        - sed -i 's@CONTAINER_IMAGE@'"$ECR_REPOSITORY_URI:$TAG"'@' hello-k8s.yml
+#        - TAG="latest"
+#        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$STAGE.$(date +%Y-%m-%d.%H.%M.%S)"
+        - TAG="$GITHUB_REPO_NAME$GITHUB_REPO_BRANCH.$STAGE.$CODEBUILD_START_TIME"
+        - sed -i 's@CONTAINER_IMAGE@'"$ECR_REPO_URI:$TAG"'@' hello-k8s.yml
         - $(aws ecr get-login --no-include-email)
         - export KUBECONFIG=$HOME/.kube/config
   build:
     commands:
       - echo [PHASE] Entered the build phase...
-      - docker build --tag $ECR_REPOSITORY_URI:$TAG .
+      - docker build --tag $ECR_REPO_URI:$TAG .
 
   post_build:
     commands:
       - echo [PHASE] Entered the post_build phase...
-      - docker push $ECR_REPOSITORY_URI:$TAG
+      - docker push $ECR_REPO_URI:$TAG
       - CREDENTIALS=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
       - export AWS_ACCESS_KEY_ID="$(echo ${CREDENTIALS} | jq -r '.Credentials.AccessKeyId')"
       - export AWS_SECRET_ACCESS_KEY="$(echo ${CREDENTIALS} | jq -r '.Credentials.SecretAccessKey')"
@@ -36,6 +37,6 @@ phases:
       - export AWS_EXPIRATION=$(echo ${CREDENTIALS} | jq -r '.Credentials.Expiration')
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
       - kubectl apply -f hello-k8s.yml
-      - printf '[{"name":"hello-k8s","imageUri":"%s"}]' $ECR_REPOSITORY_URI:$TAG > build.json
+      - printf '[{"name":"hello-k8s","imageUri":"%s"}]' $ECR_REPO_URI:$TAG > build.json
 artifacts:
   files: build.json
