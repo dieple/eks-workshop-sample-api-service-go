@@ -16,19 +16,12 @@ phases:
       - apt-get update && apt-get -y install tree jq python3-pip python3-dev && pip3 install --upgrade awscli
   pre_build:
       commands:
-        - env
-        - cat /codebuild/output/tmp/env.sh
         - echo [PHASE] Entered the pre_build phase...
-#        - TAG="latest"
-#        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$STAGE.$(date +%Y-%m-%d.%H.%M.%S)"
         - TAG=${GITHUB_REPO_NAME}_${GITHUB_REPO_BRANCH}_${STAGE}_$(date +%Y-%m-%d.%H.%M.%S)
-        - echo TAG=$TAG
         - sed -i 's@CONTAINER_IMAGE@'${ECR_REPO_URI}:${TAG}'@' hello-k8s.yml
-        - find / -name hello-k8s.yml
-        - cat ./hello-k8s.yml
         - $(aws ecr get-login --no-include-email)
+        - tree $HOME
         - export KUBECONFIG=$HOME/.kube/config
-        - ls -al $HOME/.kube/config
   build:
     commands:
       - echo [PHASE] Entered the build phase...
