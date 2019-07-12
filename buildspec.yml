@@ -6,6 +6,7 @@ phases:
       golang: 1.12
     commands:
       - echo [PHASE] Entered the install phase...
+      - cat /codebuild/output/tmp/script.sh
       - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - curl -sS -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
@@ -19,7 +20,7 @@ phases:
         - echo [PHASE] Entered the pre_build phase...
 #        - TAG="latest"
 #        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$STAGE.$(date +%Y-%m-%d.%H.%M.%S)"
-        - TAG=$(GITHUB_REPO_NAME)_$(GITHUB_REPO_BRANCH)_$(STAGE)_$(date +%Y-%m-%d.%H.%M.%S)
+        - TAG=${GITHUB_REPO_NAME}_${GITHUB_REPO_BRANCH}_${STAGE}_$(date +%Y-%m-%d.%H.%M.%S)
         - echo TAG=$TAG
         - sed -i 's@CONTAINER_IMAGE@'"$ECR_REPO_URI:$TAG"'@' hello-k8s.yml
         - $(aws ecr get-login --no-include-email)
