@@ -19,7 +19,7 @@ phases:
         - echo [PHASE] Entered the pre_build phase...
 #        - TAG="latest"
 #        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$STAGE.$(date +%Y-%m-%d.%H.%M.%S)"
-        - TAG="$GITHUB_REPO_NAME_$GITHUB_REPO_BRANCH_$STAGE_$CODEBUILD_START_TIME"
+        - TAG=$GITHUB_REPO_NAME_$GITHUB_REPO_BRANCH_$STAGE_$CODEBUILD_START_TIME
         - echo TAG=$TAG
         - sed -i 's@CONTAINER_IMAGE@'"$ECR_REPO_URI:$TAG"'@' hello-k8s.yml
         - $(aws ecr get-login --no-include-email)
