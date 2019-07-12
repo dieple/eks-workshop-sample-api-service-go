@@ -17,6 +17,7 @@ phases:
   pre_build:
       commands:
         - env
+        - cat /codebuild/output/tmp/env.sh
         - echo [PHASE] Entered the pre_build phase...
 #        - TAG="latest"
 #        - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$STAGE.$(date +%Y-%m-%d.%H.%M.%S)"
