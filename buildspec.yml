@@ -24,7 +24,7 @@ phases:
         - TAG=${GITHUB_REPO_NAME}_${GITHUB_REPO_BRANCH}_${STAGE}_$(date +%Y-%m-%d.%H.%M.%S)
         - echo TAG=$TAG
         - sed -i 's@CONTAINER_IMAGE@'${ECR_REPO_URI}:${TAG}'@' hello-k8s.yml
-        - cat hello-k8s.yaml
+        - find / -name hello-k8s.yaml
         - $(aws ecr get-login --no-include-email)
         - export KUBECONFIG=$HOME/.kube/config
         - ls -al $HOME/.kube/config
